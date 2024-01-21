@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    command: --innodb_use_native_aio=0
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - 3306:3306
+    networks:
+      - node-network
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    entrypoint: ["/usr/src/app/wait-for-it.sh", "db:3306", "-t", "60", "--", "node", "index.js"]
+    networks:
+      - node-network
+    volumes:
+      - ./api:/usr/src/app
+    tty: true
+    ports:
+      - 3000:3000
+    depends_on:
+      - db  
+  nginx:
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - "8080:80"
+    networks:
+      - node-network
+    depends_on: 
+      - db
+      - api
+
+networks:
+  node-network:
+    driver: bridge
