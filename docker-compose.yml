@@ -22,7 +22,10 @@ services:
       context: ./api
       dockerfile: Dockerfile
     container_name: api
-    entrypoint: ["/usr/src/app/wait-for-it.sh", "db:3306", "-t", "60", "--", "node", "index.js"]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        npm install && /usr/src/app/wait-for-it.sh db:3306 -t 60 -- node index.js
     networks:
       - node-network
     volumes:

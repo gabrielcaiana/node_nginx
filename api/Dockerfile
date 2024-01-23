@@ -11,5 +11,3 @@ COPY . .
 RUN chmod +x /usr/src/app/wait-for-it.sh
 
 EXPOSE 3000
-
-CMD ["sh", "-c", "npm install && node index.js"]
